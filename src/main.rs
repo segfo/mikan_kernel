@@ -15,7 +15,7 @@ fn panic(info: &PanicInfo) -> ! {
         }
     }
 }
-//
+// 色を表現する構造体、RGBからHSV色空間に変換したり。
 struct Color {
     r: u8,
     g: u8,
@@ -26,7 +26,7 @@ impl Color {
     fn new() -> Self {
         Self { r: 0, g: 0, b: 0 }
     }
-
+    // 色空間の変換メソッド
     fn hsv2rgb(&mut self, h: u8, s: u8, v: u8) {
         let h = h % 255;
         let h = h as f64 / 255.0;
@@ -73,7 +73,7 @@ impl Color {
         self.g = (g * (255.0)) as u8;
         self.b = (b * (255.0)) as u8;
     }
-    fn get_rgb_array(&self) -> [u8; 3] {
+    fn to_rgb_array(&self) -> [u8; 3] {
         [self.r, self.g, self.b]
     }
 }
@@ -91,7 +91,7 @@ extern "efiapi" fn kernel_main(mut frame_buffer: FrameBufferConfig) -> ! {
         for x in 0..hr {
             color.hsv2rgb(x as u8, 0x88, 0xff);
             unsafe {
-                frame_buffer.write_pixel(x, y, color.get_rgb_array());
+                frame_buffer.write_pixel(x, y, color.to_rgb_array());
             }
         }
     }
