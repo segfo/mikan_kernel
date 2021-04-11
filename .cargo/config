@@ -1,5 +1,4 @@
 [target.x86_64-unknown-none]
-linker = "ld.lld"
 rustflags = [
     # Build Options
     "-C", "no-redzone=yes",

@@ -80,16 +80,15 @@ impl Color {
 
 #[lang = "eh_personality"]
 extern "C" fn eh_personality() {}
-
 #[no_mangle]
-extern "efiapi" fn kernel_main(mut frame_buffer: FrameBufferConfig) -> ! {
+extern "sysv64" fn kernel_main(mut frame_buffer: FrameBufferConfig) -> ! {
     frame_buffer.init();
     let hr = frame_buffer.get_horizontal_resolution();
     let vr = frame_buffer.get_vertical_resolution();
     let mut color = Color::new();
     for y in 0..vr {
+        color.hsv2rgb((y & 0xff) as u8, 0x88, 0xff);
         for x in 0..hr {
-            color.hsv2rgb(x as u8, 0x88, 0xff);
             unsafe {
                 frame_buffer.write_pixel(x, y, color.to_rgb_array());
             }
