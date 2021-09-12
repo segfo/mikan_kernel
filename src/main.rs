@@ -1,11 +1,15 @@
 #![no_std]
 #![no_main]
 #![feature(abi_efiapi)]
+#![feature(const_fn)]
 #![feature(lang_items)]
-
-use common::hardware::*;
+// #![feature(abi_x86_interrupt)] 
+use common::{hardware::*, memory::*};
 use core::fmt::Write;
 use core::panic::PanicInfo;
+use lazy_static::lazy_static;
+use x86::dtables::*;
+use spin::Mutex;
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -78,22 +82,37 @@ impl Color {
     }
 }
 
+mod font;
+
 #[lang = "eh_personality"]
 extern "C" fn eh_personality() {}
 #[no_mangle]
-extern "sysv64" fn kernel_main(mut frame_buffer: FrameBufferConfig) -> ! {
+extern "sysv64" fn kernel_main(
+    mut frame_buffer: FrameBufferConfig,
+    mut pmm: PageMemoryManager,
+) -> ! {
     frame_buffer.init();
+
     let hr = frame_buffer.get_horizontal_resolution();
     let vr = frame_buffer.get_vertical_resolution();
     let mut color = Color::new();
-    for y in 0..vr {
-        color.hsv2rgb((y & 0xff) as u8, 0x88, 0xff);
+    color.hsv2rgb((90 * 255 / 360) as u8, 0x22, 0xff);
+    for y in 0..(vr * 3 / 4) {
         for x in 0..hr {
             unsafe {
                 frame_buffer.write_pixel(x, y, color.to_rgb_array());
             }
         }
     }
+    color.hsv2rgb(0 as u8, 0x22, 0xff);
+    for y in (vr * 3 / 4)..vr {
+        for x in 0..hr {
+            unsafe {
+                frame_buffer.write_pixel(x, y, color.to_rgb_array());
+            }
+        }
+    }
+
     loop {
         unsafe {
             io::halt();

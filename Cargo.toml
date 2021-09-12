@@ -8,6 +8,13 @@ edition = "2018"
 
 [dependencies]
 common = {path="../common"}
+heapless = "0.7.4"
+unicode-segmentation = "1.8.0"
+spin = "0.5.2"
+x86 = "0.41.0"
+[dependencies.lazy_static]
+version = "1.4.0"
+features = ["spin_no_std"]
 
 [profile.dev]
 panic = "abort"
